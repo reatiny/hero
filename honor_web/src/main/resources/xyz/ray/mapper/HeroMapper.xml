@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="xyz.ray.mapper.HeroMapper">
+    <!--    定义 字段名 和 属性名 不一样的映射-->
+    <resultMap id="heroResultMap" type="hero">
+        <result column="hero_name" property="heroName"/>
+    </resultMap>
+
+    <insert id="add">
+        insert into tb_hero (hero_name, role, age, description, status)
+        values (#{heroName}, #{role}, #{age}, #{description}, #{status})
+    </insert>
+
+
+    <update id="update">
+        update tb_hero
+        <set>
+            <if test="heroName != null and heroName != ''">
+                hero_name = #{heroName},
+            </if>
+            <if test="role !=null and role != ''">
+                role = #{role},
+            </if>
+            <if test="age != null">
+                age = #{age},
+            </if>
+            <if test="description !=null and description != ''">
+                description = #{description},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+
+    <delete id="deleteByIds">
+        delete from tb_hero where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+
+    <select id="selectAll" resultMap="heroResultMap">
+        SELECT *
+        FROM tb_hero;
+    </select>
+
+
+    <select id="selectByPageAndCondition" resultMap="heroResultMap">
+        select * from tb_hero
+        <where>
+            <if test="hero.heroName != null and hero.heroName != '' ">
+                and hero_name like #{hero.heroName}
+            </if>
+            <if test="hero.role != null and hero.role != '' ">
+                and role like #{hero.role}
+            </if>
+            <if test="hero.status != null">
+                and status = #{hero.status}
+            </if>
+        </where>
+        limit #{begin}, #{size}
+    </select>
+
+
+    <!--    为啥写都加 hero. 后啥也查不出-->
+    <select id="selectTotalCountByCondition" resultType="java.lang.Integer">
+        select count(*) from tb_hero
+        <where>
+            <if test="heroName != null and heroName != ''">
+                and hero_name like #{heroName}
+            </if>
+            <if test="role != null and role != ''">
+                and role like #{role}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+        </where>
+    </select>
+
+</mapper>

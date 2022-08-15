@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Honor of Kings</title>
+    <style>
+        .container {
+            width: 1100px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <h1>Honor of Kings</h1>
+            <!--搜索表单-->
+            <el-form :inline="true" :model="formInline" class="demo-form-inline">
+                <el-form-item label="状态">
+                  <el-select size="mini" v-model="formInline.status" placeholder="状态">
+                      <el-option label="0" value="0"></el-option>
+                      <el-option label="1" value="1"></el-option>
+                      <el-option label="all" value=null></el-option>
+                  </el-select>
+                </el-form-item>
+                <el-form-item label="英雄">
+                  <el-input size="mini" v-model="formInline.heroName" placeholder="英雄"></el-input>
+                </el-form-item>
+                <el-form-item label="角色">
+                  <el-input size="mini" v-model="formInline.role" placeholder="角色"></el-input>
+                </el-form-item>
+                <el-form-item>
+                  <el-button size="mini" type="primary" @click="onSubmit">查询</el-button>
+                </el-form-item>
+            </el-form>
+
+            <!--按钮-->
+            <el-button size="mini" type="danger" plain @click="deleteByIds">批量删除</el-button>
+            <el-button size="mini" type="primary" plain @click="dialogFormVisible = true">新增</el-button>
+            <!--添加数据对话框表单-->
+            <el-dialog title="新增英雄" :visible.sync="dialogFormVisible" width="35%">
+                <el-form :model="form">
+                  <el-form-item label="英雄名称" :label-width="formLabelWidth">
+                    <el-input v-model="form.heroName"></el-input>
+                  </el-form-item>
+                  <el-form-item label="角色" :label-width="formLabelWidth">
+                    <el-input v-model="form.role"></el-input>
+                  </el-form-item>
+                  <el-form-item label="年龄" :label-width="formLabelWidth">
+                    <el-input v-model="form.age"></el-input>
+                  </el-form-item>
+                  <el-form-item label="故事" :label-width="formLabelWidth">
+                    <el-input type="textarea" v-model="form.description"></el-input>
+                  </el-form-item>
+                  <el-form-item label="状态" :label-width="formLabelWidth">
+                    <el-switch v-model="form.status" :active-value="1" :inactive-value="0"></el-switch>
+                  </el-form-item>
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                  <el-button @click="dialogFormVisible = false">取 消</el-button>
+                  <el-button type="primary" @click="addHero">确 定</el-button>
+                </div>
+            </el-dialog>
+
+            <!--表格-->
+            <template>
+                <el-table
+                :data="tableData"
+                style="width: 100%;"
+                @selection-change="handleSelectionChange">
+                <el-table-column
+                type="selection"
+                width="55">
+                </el-table-column>
+                <el-table-column
+                type="index">
+                </el-table-column>
+                <el-table-column
+                    prop="heroName"
+                    label="英雄"
+                    width="100">
+                </el-table-column>
+                <el-table-column
+                    prop="role"
+                    label="角色"
+                    width="100">
+                </el-table-column>
+                <el-table-column
+                    prop="age"
+                    label="年龄"
+                    width="60">
+                </el-table-column>
+                <el-table-column
+                    prop="description"
+                    label="故事">
+                </el-table-column>
+                <el-table-column
+                    prop="status"
+                    label="状态"
+                    width="60">
+                </el-table-column>
+                <el-table-column
+                    label="操作"
+                    width="180">
+                    <template slot-scope="scope">
+                        <el-button
+                                size="mini"
+                                @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+                        <el-button
+                                size="mini"
+                                type="danger"
+                                @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                    </template>
+                </el-table-column>
+                </el-table>
+            </template>
+
+            <!--编辑对话框-->
+            <el-dialog title="编辑英雄" :visible.sync="editFormVisible">
+                <el-form :model="editForm">
+                    <el-form-item label="英雄名称" :label-width="formLabelWidth">
+                        <el-input v-model="editForm.heroName"></el-input>
+                    </el-form-item>
+                    <el-form-item label="角色" :label-width="formLabelWidth">
+                        <el-input v-model="editForm.role"></el-input>
+                    </el-form-item>
+                    <el-form-item label="年龄" :label-width="formLabelWidth">
+                        <el-input v-model="editForm.age"></el-input>
+                    </el-form-item>
+                    <el-form-item label="故事" :label-width="formLabelWidth">
+                        <el-input type="textarea" v-model="editForm.description"></el-input>
+                    </el-form-item>
+                    <el-form-item label="状态" :label-width="formLabelWidth">
+<!--                        active-value前为啥需要 : 呢-->
+                        <el-switch v-model="editForm.status" :active-value="1" :inactive-value="0"></el-switch>
+                    </el-form-item>
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                    <el-button @click="cancelEdit">取 消</el-button>
+                    <el-button type="primary" @click="update">确 定</el-button>
+                </div>
+            </el-dialog>
+
+            <!--分页工具条-->
+            <el-pagination
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+                :current-page="currentPage"
+                :page-sizes="[5, 10, 15, 20]"
+                :page-size="pageSize"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="totalCount">
+            </el-pagination>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.8/dist/vue.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <script>
+        new Vue({
+            el: "#app",
+            data() {
+                return {
+                    tableData: [],
+                    multipleSelection: [],
+                    formInline: {
+                        heroName: '',
+                        role: '',
+                        age: '',
+                        description: '',
+                        status: null
+                    },
+                    dialogFormVisible: false,
+                    editFormVisible: false,
+                    // 新增的数据
+                    form: {
+                        heroName: '',
+                        role: '',
+                        age: '',
+                        description: '',
+                        status: ''
+                    },
+                    editForm: {
+                        heroName: '',
+                        role: '',
+                        age: '',
+                        description: '',
+                        status: ''
+                    },
+                    formLabelWidth: '100px',
+                    currentPage: 1,
+                    pageSize: 5,
+                    totalCount: 0,
+                    selectedIds: []
+                }
+            },
+            mounted() {
+                this.selectByPageOrign();
+            },
+            methods: {
+                selectByPage() {
+                    let _this = this;
+                    axios({
+                        method: 'post',
+                        url: "http://localhost:8080/hero/"+this.currentPage+"/"+this.pageSize,
+                        data: this.formInline
+                    }).then(function (resp) {
+                        console.log(resp.data.data.rows);
+                        _this.tableData = resp.data.data.rows; // {rows:[],totalCount:xx}
+                        _this.totalCount = resp.data.data.totalCount;
+                    })
+                },
+                selectByPageOrign() {
+                    let _this = this;
+                    axios({
+                        method: 'get',
+                        url: "http://localhost:8080/hero/"+this.currentPage+"/"+this.pageSize
+                    }).then(function (resp) {
+                        console.log(resp.data.data.rows);
+                        _this.tableData = resp.data.data.rows; // {rows:[],totalCount:xx}
+                        _this.totalCount = resp.data.data.totalCount;
+                    })
+                },
+                selectAll() {
+                    axios({
+                        method: 'get',
+                        url: "http://localhost:8080/hero"
+                    }).then((resp) => {
+                        this.tableData = resp.data;
+                    })
+                },
+                update() {
+                    this.$confirm('此操作将修改该英雄, 是否继续?', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(()=>{
+                        axios({
+                            method:'put',
+                            url: "http://localhost:8080/hero",
+                            data: this.editForm
+                        }).then((resp) => {
+                            if(resp.data.code == 20031){
+                                //修改成功
+                                // 重新查询数据
+                                this.editFormVisible = false;
+                                this.selectByPage();
+                                // 弹出消息提示
+                                this.$message({
+                                    type: 'success',
+                                    message: '修改成功!'
+                                });
+                            }
+                        })
+                    }).catch(() => {
+                        this.$message({
+                            type: 'info',
+                            message: '已取消修改'
+                        });
+                    });
+                },
+                addHero() {
+                    let _this = this;
+                    axios({
+                        method:"post",
+                        url: "http://localhost:8080/hero",
+                        data: _this.form
+                    }).then(function (resp) {
+                        if (resp.data.code == 20011) {
+                            _this.dialogFormVisible = false;
+                            _this.selectByPageOrign();
+                            _this.$message({
+                                message: '恭喜你，添加成功',
+                                type: 'success'
+                            });
+                        }
+                    })
+                },
+                deleteByIds() {
+                    this.$confirm('此操作将批量删除英雄, 是否继续?', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        //用户点击确认按钮
+                        //1. 创建id数组 [1,2,3], 从 this.multipleSelection 获取即可
+                        for (let i = 0; i < this.multipleSelection.length; i++) {
+                            let selectionElement = this.multipleSelection[i];
+                            this.selectedIds[i] = selectionElement.id;
+                        }
+                        //2. 发送AJAX请求
+                        let _this = this;
+                        axios({
+                            method:"delete",
+                            url: "http://localhost:8080/hero",
+                            data: _this.selectedIds
+                        }).then(function (resp) {
+                            if(resp.data.code == 20021){
+                                //删除成功
+                                // 重新查询数据
+                                _this.selectByPage();
+                                // 弹出消息提示
+                                _this.$message({
+                                    type: 'success',
+                                    message: '删除成功!'
+                                });
+                            }
+                        })
+                    }).catch(() => {
+                        this.$message({
+                            type: 'info',
+                            message: '已取消删除'
+                        });
+                    });
+                },
+                handleSelectionChange(val) {
+                    this.multipleSelection = val;
+                    console.log(val);
+                },
+                onSubmit() {
+                    console.log(this.formInline)
+                    // 避免在非第一页条件查询时显示无数据
+                    this.currentPage = 1;
+                    this.selectByPage();
+                },
+                handleSizeChange(val) {
+                    console.log(`每页 ${val} 条`);
+                    this.pageSize = val;
+                    this.selectByPage();
+                },
+                handleCurrentChange(val) {
+                    console.log(`当前页: ${val}`);
+                    this.currentPage = val;
+                    this.selectByPage();
+                },
+                handleEdit(index, row) {
+                    console.log(index, row);
+                    this.editForm = row;
+                    this.editFormVisible = true;
+
+                },
+                cancelEdit() {
+                    this.editFormVisible = false;
+                    this.selectByPage();
+                },
+                handleDelete(index, row) {
+                    console.log(index, row);
+                    this.$confirm('此操作将删除该英雄, 是否继续?', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        axios({
+                            method:'delete',
+                            url:'http://localhost:8080/hero/'+row.id
+                        }).then((resp) => {
+                            if(resp.data.code == 20021){
+                                this.currentPage = 1;
+                                this.selectByPage();
+                                this.$message({
+                                    type: 'success',
+                                    message: '删除成功!'
+                                });
+                            }
+                        })
+                    }).catch(() => {
+                        this.$message({
+                            type: 'info',
+                            message: '已取消删除'
+                        });
+                    });
+                }
+            }
+        })
+    </script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+xyz/ray/web/servlet/HeroServlet.class
+xyz/ray/service/HeroService.class
+xyz/ray/pojo/PageBean.class
+xyz/ray/util/SqlSessionFactoryUtils.class
+xyz/ray/web/servlet/SelectAllServlet.class
+xyz/ray/web/servlet/BaseServlet.class
+xyz/ray/mapper/HeroMapper.class
+xyz/ray/service/impl/HeroServiceImpl.class
+xyz/ray/web/servlet/AddServlet.class
+xyz/ray/pojo/Hero.class
