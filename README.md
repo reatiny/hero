@@ -18,13 +18,13 @@
 
 ## 2、项目结构
 
-<img src="/Users/wangchenrui/Documents/My-Blog-Hugo/static/images/image-20220816205005969.png" alt="image-20220816205005969" style="zoom: 50%;" />
+<img src="img/image-20220816205005969.png" alt="image-20220816205005969" style="zoom: 33%;" />
 
 ## 3、功能
 
 后端接口使用 restful API
 
-<img src="/Users/wangchenrui/Documents/My-Blog-Hugo/static/images/image-20220816205743673.png" alt="image-20220816205743673" style="zoom:50%;" />
+<img src="img/image-20220816205743673.png" alt="image-20220816205743673" style="zoom:50%;" />
 
 [接口文档链接(ssm)](https://www.apifox.cn/apidoc/shared-1f52eb9d-9b7c-48bd-8551-8ac8384a541f)
 
@@ -32,4 +32,4 @@
 
 主页展示
 
-![image-20220816205451566](/Users/wangchenrui/Documents/My-Blog-Hugo/static/images/image-20220816205451566.png)
+![image-20220816205451566](img/image-20220816205451566.png)
