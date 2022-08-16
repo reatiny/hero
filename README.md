@@ -24,7 +24,7 @@
 
 后端接口使用 restful API
 
-<img src="img/image-20220816205743673.png" alt="image-20220816205743673" style="zoom:30%;" />
+<img src="img/image-20220816205743673.png" alt="image-20220816205743673" style="zoom:10%;" />
 
 [接口文档链接(ssm)](https://www.apifox.cn/apidoc/shared-1f52eb9d-9b7c-48bd-8551-8ac8384a541f)
 
